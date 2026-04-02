@@ -8,7 +8,7 @@ import { Mail, Lock, ArrowRight } from "lucide-react";
 const Login = () => {
   const token = localStorage.getItem("token");
 
-  // ✅ BLOCK LOGIN PAGE IF ALREADY LOGGED IN
+  
   if (token) {
     return <Navigate to="/dashboard" replace />;
   }
@@ -24,22 +24,25 @@ const Login = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!formData.email || !formData.password) {
-      toast.error("Please fill all fields");
-      return;
-    }
+  if (!formData.email || !formData.password) {
+    toast.error("Please fill all fields");
+    return;
+  }
 
-    try {
-      const data = await loginUser(formData);
-      localStorage.setItem("token", data.token);
-      toast.success("Login successful 🎉");
-      navigate("/dashboard", { replace: true });
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed 😟");
-    }
-  };
+  try {
+    const data = await loginUser(formData);
+
+    localStorage.setItem("token", data.token);
+
+    navigate("/success", { replace: true });
+
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Login failed!!");
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-[#0b0f1a] flex">

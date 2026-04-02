@@ -134,12 +134,14 @@ const CoderNotes = () => {
       setLoadingCreate(true);
 
       const payload = {
-        title: formatTitle(title),
-        difficulty,
-        priority,
-        companies: companies.split(",").map((c) => c.trim()).filter(Boolean),
-        tags: tags.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean),
-      };
+  title: formatTitle(title),
+  difficulty: String(difficulty),
+  priority,
+  companies: companies.split(",").map((c) => c.trim()).filter(Boolean),
+  tags: tags.split(",").map((t) => t.trim().toLowerCase()).filter(Boolean),
+};
+
+console.log("SENDING:", payload); 
 
       await createCoderNote(payload);
       await loadNotes();
@@ -191,7 +193,7 @@ const CoderNotes = () => {
 
   /* ================= LOADING PLACEHOLDER ================= */
 
-  if (loadingNotes) return <PageSkeleton />;
+ 
 
   /* ================= UI ================= */
 

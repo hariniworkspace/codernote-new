@@ -27,7 +27,6 @@ const emptyApproach = {
   code: "",
   time: "",
   space: "",
-  images: [],
 };
 
 const SectionTitle = ({ icon, title }) => (
@@ -87,103 +86,6 @@ const DeleteDialog = ({ onCancel, onConfirm }) => {
 };
 
 
-/* 🖼 Image Slot — FIXED */
-const ImageSlot = ({ images = [], setImages }) => {
-  const fileRef = useRef();
-
-  const uploadToServer = async (file) => {
-  const formData = new FormData();
-  formData.append("image", file);
-
-  const token = localStorage.getItem("token");
-
-  const res = await fetch(
-    "http://localhost:5000/api/codernotes/upload-image",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    }
-  );
-
-  const data = await res.json();
-  return `http://localhost:5000${data.imageUrl}`;
-};
-
-
-  const handleFiles = async (files) => {
-    const arr = [...images];
-    for (let file of files) {
-      const url = await uploadToServer(file);
-      arr.push(url);
-    }
-    setImages(arr);
-  };
-
-  const handlePaste = async (e) => {
-    e.preventDefault();
-    const items = e.clipboardData.items;
-    for (let item of items) {
-      if (item.type.includes("image")) {
-        const file = item.getAsFile();
-        await handleFiles([file]);
-      }
-    }
-  };
-
-  const removeImage = (idx) => {
-    setImages(images.filter((_, i) => i !== idx));
-  };
-
-  return (
-    <div
-      onPaste={handlePaste}
-      className="border-2 border-dashed border-green-400/40 rounded-xl p-5 text-center"
-    >
-      <p className="text-xs text-gray-400 mb-3">
-        Paste / Drop / Upload images
-      </p>
-
-      <button
-        onClick={() => fileRef.current.click()}
-        className="bg-green-500 text-white px-4 py-1.5 rounded-lg text-sm"
-      >
-        Upload Images
-      </button>
-
-      <input
-        ref={fileRef}
-        type="file"
-        multiple
-        accept="image/*"
-        hidden
-        onChange={(e) => handleFiles(e.target.files)}
-      />
-
-      {images?.length > 0 && (
-        <div className="grid grid-cols-3 gap-3 mt-4">
-          {images.map((img, i) => (
-            <div key={i} className="relative group">
-              <img
-                src={img}
-                alt=""
-                className="rounded-lg border border-white/10 max-h-40 object-cover"
-              />
-              <button
-                onClick={() => removeImage(i)}
-                className="absolute top-1 right-1 bg-black/60 p-1 rounded-full hidden group-hover:block"
-              >
-                <X size={12} />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
 
 const CoderNoteDetail = () => {
   const { id } = useParams();
@@ -196,18 +98,24 @@ const CoderNoteDetail = () => {
 
 
 
-  useEffect(() => {
-    (async () => {
-      const data = await getCoderNoteById(id);
-      setNote({
-        ...data,
-        brute: data.brute || { ...emptyApproach },
-        better: data.better || { ...emptyApproach },
-        optimal: data.optimal || { ...emptyApproach },
-      });
-      setLoading(false);
-    })();
-  }, [id]);
+ useEffect(() => {
+  (async () => {
+    const data = await getCoderNoteById(id);
+
+    console.log("DETAIL DATA:", data); 
+    console.log("difficuly detail:",data.difficulty);
+
+    setNote({
+      ...data,
+      brute: data.brute || { ...emptyApproach },
+      better: data.better || { ...emptyApproach },
+      optimal: data.optimal || { ...emptyApproach },
+    });
+
+    setLoading(false);
+  })();
+}, [id]);
+  
 
   const handleToggleRevision = async () => {
     const updated = await toggleRevision(id);
@@ -245,11 +153,6 @@ const CoderNoteDetail = () => {
               <div className="text-3xl font-semibold w-full border-b border-white/10 pb-2">
               {note.title || "Untitled Note"}
             </div>
-
-
-              <span className="px-4 py-1.5 rounded-lg bg-purple-600/20 border border-purple-500/20 text-sm">
-                {note.difficulty}
-              </span>
             </div>
 
             {/* 🔗 LINKS */}
@@ -342,15 +245,7 @@ const CoderNoteDetail = () => {
                     className="w-full bg-[#0b1020] text-green-300 border border-white/10 rounded-lg p-5 font-mono text-sm leading-6 min-h-[300px]"
                   />
 
-                  <ImageSlot
-                    images={note[key].images || []}
-                    setImages={(imgs) =>
-                      setNote({
-                        ...note,
-                        [key]: { ...note[key], images: imgs },
-                      })
-                    }
-                  />
+                  
                 </div>
               )}
             </div>
